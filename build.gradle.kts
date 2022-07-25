@@ -17,6 +17,14 @@ group = mavenGroup
 
 repositories {
     maven {
+        name = "CurseMaven"
+        setUrl("https://cursemaven.com")
+        content {
+            includeGroup("curse.maven")
+        }
+    }
+
+    maven {
         name = "Modrinth"
         setUrl("https://api.modrinth.com/maven")
         content {
@@ -40,12 +48,23 @@ dependencies {
     
     val fabricVersion: String by project
     modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
-    
+    //Deprecated libs for BlueMap
+//    modImplementation("net.fabricmc.fabric-api", "fabric-api-deprecated", fabricVersion)
+
     val fabricKotlinVersion: String by project
     modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
 
-//    Template
-//    modImplementation("maven.modrinth", "<modname>", "<modversion>")
+    val blueMapVersion: String by project
+    modCompileOnly("maven.modrinth", "BlueMap", blueMapVersion)
+
+    val ftbChunksVersion: String by project
+    modCompileOnly("curse.maven", "ftbchunks-472657", ftbChunksVersion)
+
+    val ftbLibraryVersion: String by project
+    modCompileOnly("curse.maven", "ftblibrary-438495", ftbLibraryVersion)
+
+    val ftbTeamsVersion: String by project
+    modCompileOnly("curse.maven", "ftbteams-438497", ftbTeamsVersion)
 }
 
 tasks {

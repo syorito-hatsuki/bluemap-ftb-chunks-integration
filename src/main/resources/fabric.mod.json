@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "template",
+  "id": "bluemapftbchunksintegration",
   "version": "${version}",
-  "name": "Template Mod",
+  "name": "BlueMap + FTB Chunks Integration",
   "description": "Mod Description",
   "authors": [
     "Syorito Hatsuki"
@@ -11,22 +11,26 @@
     "homepage": "https://syoritohatsuki.dev/"
   },
   "license": "MIT Licence",
-  "icon": "assets/template/icon.png",
+  "icon": "assets/bluemapftbchunksintegration/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
       {
         "adapter": "kotlin",
-        "value": "dev.syoritohatsuki.template.TemplateMod"
+        "value": "dev.syoritohatsuki.bluemapftbchunksintegration.BlueMapFtbChunksIntegrationMod"
       }
     ]
   },
   "mixins": [
-    "template.mixins.json"
+    "bluemapftbchunksintegration.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.14.8",
     "fabric": "*",
+    "ftbchunks": "*",
+    "ftbteams": "*",
+    "bluemap": "*",
+    "ftblibrary": "*",
     "fabric-language-kotlin": ">=1.8.2+kotlin.1.7.10",
     "minecraft": "1.19.x",
     "java": ">=17"
