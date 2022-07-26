@@ -1,15 +1,14 @@
 package dev.syoritohatsuki.bluemapftbchunksintegration
 
-import com.flowpowered.math.vector.Vector3d
 import com.mojang.logging.LogUtils
 import de.bluecolored.bluemap.api.BlueMapAPI
-import de.bluecolored.bluemap.api.marker.Line
+import de.bluecolored.bluemap.api.marker.Shape
 import de.bluecolored.bluemap.fabric.events.PlayerJoinCallback
 import dev.ftb.mods.ftbchunks.data.FTBChunksAPI
+import dev.syoritohatsuki.bluemapftbchunksintegration.util.FTBChunksUtil
 import net.fabricmc.api.ModInitializer
 import org.slf4j.Logger
-import kotlin.random.Random
-import kotlin.random.nextUInt
+import java.awt.Color
 
 object BlueMapFtbChunksIntegrationMod : ModInitializer {
 
@@ -18,80 +17,102 @@ object BlueMapFtbChunksIntegrationMod : ModInitializer {
     override fun onInitialize() {
         LOGGER.info("Template initialized")
 
-        PlayerJoinCallback.EVENT.register(PlayerJoinCallback { _, _ ->
-            BlueMapAPI.getInstance().ifPresent { blueMapAPI ->
-                val vectorsWorld = mutableListOf<Vector3d>()
-                val vectorsNether = mutableListOf<Vector3d>()
-                val vectorsEnd = mutableListOf<Vector3d>()
-                val markerAPI = blueMapAPI.markerAPI
-                blueMapAPI.maps.forEach {
-                    FTBChunksAPI.manager.claimedChunks.forEach { claimedChunkEntry ->
-                        if (claimedChunkEntry.value.pos.dimension.value.path.contains(it.id, true)) {
-                            when (it.id) {
-                                "world" -> {
-                                    vectorsWorld.add(
-                                        Vector3d(
-                                            claimedChunkEntry.value.pos.chunkPos.centerX.toFloat(),
-                                            0F,
-                                            claimedChunkEntry.value.pos.chunkPos.centerZ.toFloat()
-                                        )
-                                    )
-                                }
-                                "nether" -> {
-                                    vectorsNether.add(
-                                        Vector3d(
-                                            claimedChunkEntry.value.pos.chunkPos.centerX.toFloat(),
-                                            0F,
-                                            claimedChunkEntry.value.pos.chunkPos.centerZ.toFloat()
-                                        )
-                                    )
-                                }
-                                "end" -> {
-                                    vectorsEnd.add(
-                                        Vector3d(
-                                            claimedChunkEntry.value.pos.chunkPos.centerX.toFloat(),
-                                            0F,
-                                            claimedChunkEntry.value.pos.chunkPos.centerZ.toFloat()
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-                LOGGER.info(vectorsWorld.toTypedArray().size.toString())
-                LOGGER.info(vectorsNether.toTypedArray().size.toString())
-                LOGGER.info(vectorsEnd.toTypedArray().size.toString())
-                if (vectorsWorld.size >= 2) {
-                    markerAPI.createMarkerSet("ftb-world")
-                        .createLineMarker(
-                            Random(System.currentTimeMillis()).nextUInt().toString(),
-                            blueMapAPI.getMap("world").get(),
-                            Line(*vectorsWorld.toTypedArray())
-                        )
-                    markerAPI.save()
-                }
-                if (vectorsNether.size >= 2) {
-                    markerAPI.createMarkerSet("ftb-nether")
-                        .createLineMarker(
-                            Random(System.currentTimeMillis()).nextUInt().toString(),
-                            blueMapAPI.getMap("nether").get(),
-                            Line(*vectorsNether.toTypedArray())
-                        )
-                    markerAPI.save()
-                }
-                if (vectorsEnd.size >= 2) {
-                    markerAPI.createMarkerSet("ftb-end")
-                        .createLineMarker(
-                            Random(System.currentTimeMillis()).nextUInt().toString(),
-                            blueMapAPI.getMap("end").get(),
-                            Line(*vectorsEnd.toTypedArray())
-                        )
-                    markerAPI.save()
-                }
+        PlayerJoinCallback.EVENT.register(PlayerJoinCallback { _, serverPlayerEntity ->
 
+            BlueMapAPI.getInstance().ifPresent {
+                val markerAPI = it.markerAPI
+                val list = FTBChunksUtil.getOverWorldPlayerChunks(serverPlayerEntity)
+                val color = Color(FTBChunksAPI.manager.getData(serverPlayerEntity).team.color)
+                markerAPI.removeMarkerSet(serverPlayerEntity.name.string)
+
+                markerAPI.createMarkerSet(serverPlayerEntity.name.string)
+                    .createShapeMarker(
+                        "Home",
+                        it.getMap("world").get(),
+                        Shape.createRect(list[0], list[1]),
+                        0F
+                    ).setColors(
+                        Color(FTBChunksAPI.manager.getData(serverPlayerEntity).team.color),
+                        Color(color.red, color.green, color.blue, 85)
+                    )
+                markerAPI.save()
             }
 
+
+//            BlueMapAPI.getInstance().ifPresent { blueMapAPI ->
+//
+//                val vectorsWorld = mutableListOf<Vector3d>()
+//                val vectorsNether = mutableListOf<Vector3d>()
+//                val vectorsEnd = mutableListOf<Vector3d>()
+//
+//                val markerAPI = blueMapAPI.markerAPI
+//
+//                blueMapAPI.maps.forEach {
+//                    FTBChunksAPI.manager.claimedChunks.forEach { claimedChunkEntry ->
+//                        if (claimedChunkEntry.value.pos.dimension.value.path.contains(it.id, true)) {
+//                            when (it.id) {
+//                                "world" -> {
+//                                    vectorsWorld.add(
+//                                        Vector3d(
+//                                            claimedChunkEntry.value.pos.chunkPos.centerX.toFloat(),
+//                                            0F,
+//                                            claimedChunkEntry.value.pos.chunkPos.centerZ.toFloat()
+//                                        )
+//                                    )
+//                                }
+//                                "nether" -> {
+//                                    vectorsNether.add(
+//                                        Vector3d(
+//                                            claimedChunkEntry.value.pos.chunkPos.centerX.toFloat(),
+//                                            0F,
+//                                            claimedChunkEntry.value.pos.chunkPos.centerZ.toFloat()
+//                                        )
+//                                    )
+//                                }
+//                                "end" -> {
+//                                    vectorsEnd.add(
+//                                        Vector3d(
+//                                            claimedChunkEntry.value.pos.chunkPos.centerX.toFloat(),
+//                                            0F,
+//                                            claimedChunkEntry.value.pos.chunkPos.centerZ.toFloat()
+//                                        )
+//                                    )
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                LOGGER.info(vectorsWorld.toTypedArray().size.toString())
+//                LOGGER.info(vectorsNether.toTypedArray().size.toString())
+//                LOGGER.info(vectorsEnd.toTypedArray().size.toString())
+//                if (vectorsWorld.size >= 2) {
+//                    markerAPI.createMarkerSet("ftb-world")
+//                        .createLineMarker(
+//                            Random(System.currentTimeMillis()).nextUInt().toString(),
+//                            blueMapAPI.getMap("world").get(),
+//                            Line(*vectorsWorld.toTypedArray())
+//                        )
+//                    markerAPI.save()
+//                }
+//                if (vectorsNether.size >= 2) {
+//                    markerAPI.createMarkerSet("ftb-nether")
+//                        .createLineMarker(
+//                            Random(System.currentTimeMillis()).nextUInt().toString(),
+//                            blueMapAPI.getMap("nether").get(),
+//                            Line(*vectorsNether.toTypedArray())
+//                        )
+//                    markerAPI.save()
+//                }
+//                if (vectorsEnd.size >= 2) {
+//                    markerAPI.createMarkerSet("ftb-end")
+//                        .createLineMarker(
+//                            Random(System.currentTimeMillis()).nextUInt().toString(),
+//                            blueMapAPI.getMap("end").get(),
+//                            Line(*vectorsEnd.toTypedArray())
+//                        )
+//                    markerAPI.save()
+//                }
+//            }
 
 //            BlueMapAPI.getInstance().ifPresent { blueMapAPI ->
 //                blueMapAPI.markerAPI.apply {
@@ -141,4 +162,4 @@ object BlueMapFtbChunksIntegrationMod : ModInitializer {
 
 [18:54:50] [Server thread/INFO]: sX: 176 | sZ: 224
 [18:54:50] [Server thread/INFO]: eX: 191 | eZ: 239
-* */
+*/
